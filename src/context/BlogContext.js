@@ -1,39 +1,57 @@
 import createDataContext from './createDataContext';
+import jsonServer from '../api/jsonServer';
 
 const reducer = (state, { type, payload }) => {
   switch (type) {
-    case 'ADD':
-      return [...state, { key: `${Date.now()}`, ...payload }];
+    case 'GET':
+      return payload;
     case 'EDIT':
-      const newState = [...state];
-      const editIndex = state.findIndex((s) => s.key === payload.id);
-      newState[editIndex] = {
-        ...newState[editIndex],
-        ...payload.data,
-      };
-      return newState;
+      return [...state].map((blogPost) => {
+        return blogPost.id === payload.id ? payload : blogPost;
+      });
     case 'DELETE':
-      return state.filter((blog, index) => index !== payload);
+      return state.filter((blog) => blog.id !== payload);
     default:
       return state;
   }
 };
 
+const getBlogPosts = (dispatch) => {
+  return async () => {
+    const { data } = await jsonServer.get('/blogposts');
+    dispatch({ type: 'GET', payload: data });
+  };
+};
+
 const addBlogPost = (dispatch) => {
-  return (payload) => {
-    dispatch({ type: 'ADD', payload });
+  return async (title, content, callback) => {
+    await jsonServer.post('/blogposts', { title, content });
+
+    if (callback) {
+      callback();
+    }
   };
 };
 
 const updateBlogPost = (dispatch) => {
-  return (id, data) => {
-    dispatch({ type: 'EDIT', payload: { id, data } });
+  return async (id, title, content, callback) => {
+    await jsonServer.put(`/blogposts/${id}`, { title, content });
+
+    dispatch({
+      type: 'EDIT',
+      payload: { id, title, content },
+    });
+    if (callback) {
+      callback();
+    }
   };
 };
 
 const deleteBlogPost = (dispatch) => {
-  return (index) => {
-    dispatch({ type: 'DELETE', payload: index });
+  return async (id) => {
+    await jsonServer.delete(`/blogposts/${id}`);
+
+    dispatch({ type: 'DELETE', payload: id });
   };
 };
 
@@ -42,6 +60,6 @@ export const {
   Context: BlogContext,
 } = createDataContext(
   reducer,
-  { addBlogPost, updateBlogPost, deleteBlogPost },
+  { getBlogPosts, addBlogPost, updateBlogPost, deleteBlogPost },
   []
 );

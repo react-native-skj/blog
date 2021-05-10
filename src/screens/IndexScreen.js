@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 import {
   StyleSheet,
   Text,
@@ -10,22 +10,38 @@ import { BlogContext } from '../context/BlogContext';
 import { Feather } from '@expo/vector-icons';
 
 const IndexScreen = ({ navigation }) => {
-  const { state: blogPosts, deleteBlogPost } = useContext(BlogContext);
+  const { state: blogPosts, deleteBlogPost, getBlogPosts } = useContext(
+    BlogContext
+  );
+
+  useEffect(() => {
+    getBlogPosts();
+
+    const listener = navigation.addListener('didFocus', () => {
+      getBlogPosts();
+    });
+
+    return () => {
+      listener.remove();
+    };
+  }, []);
+
   return (
     <View>
       <FlatList
+        keyExtractor={(blogPost) => `${blogPost.id}`}
         data={blogPosts}
-        renderItem={({ item, index }) => (
+        renderItem={({ item }) => (
           <TouchableOpacity
             onPress={() =>
               navigation.navigate('Detail', {
-                id: item.key,
+                id: item.id,
               })
             }
           >
             <View style={styles.item}>
               <Text>{item.title}</Text>
-              <TouchableOpacity onPress={() => deleteBlogPost(index)}>
+              <TouchableOpacity onPress={() => deleteBlogPost(item.id)}>
                 <Feather name="trash" size={20} />
               </TouchableOpacity>
             </View>

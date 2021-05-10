@@ -6,7 +6,7 @@ import { Feather } from '@expo/vector-icons';
 const DetailScreen = ({ navigation }) => {
   const id = navigation.getParam('id');
   const { state: blogPosts } = useContext(BlogContext);
-  const blogPost = blogPosts.find((blog) => blog.key === id);
+  const blogPost = blogPosts.find((blog) => blog.id === id);
   return (
     <View style={styles.container}>
       <Text style={styles.title}>{blogPost.title}</Text>
@@ -20,7 +20,7 @@ DetailScreen.navigationOptions = ({ navigation }) => {
     headerRight: () => (
       <TouchableOpacity
         onPress={() =>
-          navigation.navigate('Create', {
+          navigation.navigate('Edit', {
             id: navigation.getParam('id'),
           })
         }
