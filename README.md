@@ -36,3 +36,23 @@ expo r -c
 import { createAppContainer } from 'react-navigation';
 import { createStackNavigator } from 'react-navigation-stack';
 ```
+
+## headerRight Deprecation in 'navigationOptions'
+
+```js
+return {
+  headerRight: () => (
+    <TouchableOpacity onPress={() => navigation.navigate('Create')}>
+      <Feather name="plus" size={30} />
+    </TouchableOpacity>
+  ),
+};
+
+return {
+  headerRight: () => (
+    <TouchableOpacity onPress={() => navigation.navigate('Edit')}>
+      <EvilIcons name="pencil" size={35} />
+    </TouchableOpacity>
+  ),
+};
+```
